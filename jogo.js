@@ -40,32 +40,55 @@ const planoDeFundo = {
 };
 
 // [ CHAO ]
-const chao = {
-    sprintX: 0,
-    sprintY: 610,
-    largura: 224,
-    altura: 112,
-    x: 0,
-    y: canvas.height -112,
-    desenha() {
-        contexto.drawImage(
-            sprites,
-            chao.sprintX, chao.sprintY,
-            chao.largura, chao.altura,
-            chao.x, chao.y,
-            chao.largura, chao.altura
+function criarChao() {
+    const chao = {
+        spriteX: 0,
+        spriteY: 610,
+        largura: 224,
+        altura: 112,
+        x: 0,
+        y: canvas.height - 112,
+        atualiza() {
+            const movimentoDoChao = 1;
+            const repeteEm = chao.largura / 2;
+            const movimentacao = chao.x - movimentoDoChao;
 
-        );
+            //console.log('x',chao.x)
+            //console.log('em',repeteEm)
+            //console.log('movimentacao', movimentacao % repeteEm)
 
-        contexto.drawImage(
-            sprites,
-            chao.sprintX, chao.sprintY,
-            chao.largura, chao.altura,
-            (chao.x + chao.altura), chao.y,
-            chao.largura, chao.altura
-        );
+            chao.x = movimentacao % repeteEm;
+        },
+        desenha() {
+            contexto.drawImage(
+                sprites,
+                chao.spriteX, chao.spriteY,
+                chao.largura, chao.altura,
+                chao.x, chao.y,
+                chao.largura, chao.altura
+    
+            );
+    
+            contexto.drawImage(
+                sprites,
+                chao.spriteX, chao.spriteY,
+                chao.largura, chao.altura,
+                (chao.x + chao.altura), chao.y,
+                chao.largura, chao.altura
+            );
 
-    },
+            contexto.drawImage(
+                sprites,
+                chao.spriteX, chao.spriteY,
+                chao.largura, chao.altura,
+                (chao.x + (chao.altura * 2)), chao.y,
+                chao.largura, chao.altura
+            );
+    
+        }
+    }
+    return chao;
+    
 }
 
 function fazColisao(flappyBird, chao) {
@@ -82,8 +105,8 @@ function fazColisao(flappyBird, chao) {
 // [ flappyBird ]
 function criaFlappyBird() {
     const flappyBird = {
-        sprintX: 0,
-        sprintY: 0,
+        spriteX: 0,
+        spriteY: 0,
         largura: 33,
         altura: 24,
         x: 10,
@@ -96,7 +119,7 @@ function criaFlappyBird() {
             flappyBird.velocidade = - flappyBird.pulo;
         },
         atualiza() {
-            if(fazColisao(flappyBird, chao)) {
+            if(fazColisao(flappyBird, globais.chao)) {
                 console.log('colizao');
                 som_HIT.play();
 
@@ -113,7 +136,7 @@ function criaFlappyBird() {
         desenha() {
             contexto.drawImage(
                 sprites,
-                flappyBird.sprintX, flappyBird.sprintY,
+                flappyBird.spriteX, flappyBird.spriteY,
                 flappyBird.largura, flappyBird.altura,
                 flappyBird.x, flappyBird.y,
                 flappyBird.largura, flappyBird.altura
@@ -160,18 +183,19 @@ const Telas = {
     INICIO: {
         inicializa() {
             globais.flappyBird = criaFlappyBird();
+            globais.chao = criarChao();
         },
         desenha() {
-            planoDeFundo.desenha()
-            chao.desenha() 
-            globais.flappyBird.desenha()
-            mensagemGetReady.desenha()
+            planoDeFundo.desenha();
+            globais.chao.desenha();
+            globais.flappyBird.desenha();
+            mensagemGetReady.desenha();
         },
         click() {
             mudaParaTela(Telas.JOGO);
         },
         atualiza() {
-
+            globais.chao.atualiza();
         }
     }
 };
@@ -179,7 +203,7 @@ const Telas = {
 Telas.JOGO = {
     desenha() {
         planoDeFundo.desenha()
-        chao.desenha() 
+        globais.chao.desenha() 
         globais.flappyBird.desenha()
     }, 
     click() {
@@ -187,6 +211,7 @@ Telas.JOGO = {
     },
     atualiza() {
         globais.flappyBird.atualiza();   
+        globais.chao.atualiza();
     },
 };
 
