@@ -1,5 +1,6 @@
 console.log('[Eduardo] Flappy Brid')
 
+let frames = 0;
 const som_HIT = new Audio();
 som_HIT.src = './efeitos/hit.wav'
 
@@ -65,7 +66,7 @@ function criarChao() {
                 chao.spriteX, chao.spriteY,
                 chao.largura, chao.altura,
                 chao.x, chao.y,
-                chao.largura, chao.altura
+                chao.largura, chao.altura,
     
             );
     
@@ -74,7 +75,7 @@ function criarChao() {
                 chao.spriteX, chao.spriteY,
                 chao.largura, chao.altura,
                 (chao.x + chao.altura), chao.y,
-                chao.largura, chao.altura
+                chao.largura, chao.altura,
             );
 
             contexto.drawImage(
@@ -82,13 +83,12 @@ function criarChao() {
                 chao.spriteX, chao.spriteY,
                 chao.largura, chao.altura,
                 (chao.x + (chao.altura * 2)), chao.y,
-                chao.largura, chao.altura
+                chao.largura, chao.altura,
             );
     
-        }
-    }
+        },
+    };
     return chao;
-    
 }
 
 function fazColisao(flappyBird, chao) {
@@ -97,7 +97,7 @@ function fazColisao(flappyBird, chao) {
 
     if(flappyBirdY >= chaoY) {
         return true;
-    };
+    }
 
     return false;
 }
@@ -115,12 +115,12 @@ function criaFlappyBird() {
         velocidade: 0,
         pulo: 4.6,
         pula() {
-            console.log('PULOOOOOO')
+            // console.log('PULOOOOOO')
             flappyBird.velocidade = - flappyBird.pulo;
         },
         atualiza() {
             if(fazColisao(flappyBird, globais.chao)) {
-                console.log('colizao');
+                // console.log('colizao');
                 som_HIT.play();
 
                 setTimeout(() => {
@@ -132,11 +132,32 @@ function criaFlappyBird() {
             flappyBird.velocidade = flappyBird.velocidade + flappyBird.gravidade
             flappyBird.y = flappyBird.y + flappyBird.velocidade
         },
+        movimentos: [
+            { spriteX: 0, spriteY:0, }, // asa para cima
+            { spriteX: 0, spriteY:26, }, // asa no meio
+            { spriteX: 0, spriteY:52, }, // asa pra baixo
+            { spriteX: 0, spriteY:26, }, // asa no meio
     
+        ],  
+        frameAtual: 0,
+        atualizaOfremeAtual() {
+            const intevaloDeFrames = 10;
+            const passouOIntervalor = frames % intevaloDeFrames === 0; 
+
+            if(passouOIntervalor) {
+                const baseDoIncremento = 1;
+                const incremento = baseDoIncremento + flappyBird.frameAtual;
+                const baseRepeticao = flappyBird.movimentos.length;
+                flappyBird.frameAtual = incremento % baseRepeticao
+            }
+        },
         desenha() {
+            flappyBird.atualizaOfremeAtual();
+            const { spriteX, spriteY } = flappyBird.movimentos[flappyBird.frameAtual];
+            
             contexto.drawImage(
                 sprites,
-                flappyBird.spriteX, flappyBird.spriteY,
+                spriteX, spriteY,
                 flappyBird.largura, flappyBird.altura,
                 flappyBird.x, flappyBird.y,
                 flappyBird.largura, flappyBird.altura
@@ -220,6 +241,7 @@ function loop() {
     telaAtiva.desenha();
     telaAtiva.atualiza();
 
+    frames = frames + 1;
     requestAnimationFrame(loop);  
 }
 
